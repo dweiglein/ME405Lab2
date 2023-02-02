@@ -1,4 +1,5 @@
 # initialize encoder and motor
+<<<<<<< HEAD
 import pyb
 import utime
 import csv
@@ -27,6 +28,11 @@ encoder1 = EncoderReader(encoder1Pin, encoder2Pin, 0, 0)
 
 
 
+=======
+# receive a setpoint
+# receive a Kp
+
+>>>>>>> b7217c42b2c4b4b4339de8e2694b242555552c8f
 # A constructor which sets the proportional gain, initial setpoint, and other necessary parameters.
 
 # A method run() which is called repeatedly to run the control algorithm.
@@ -41,6 +47,7 @@ encoder1 = EncoderReader(encoder1Pin, encoder2Pin, 0, 0)
 
 # A method set_Kp() to set the control gain.
 
+<<<<<<< HEAD
 #Main Loop
 if __name__ == '__main__':
     # Intake Kp and Setpt value from serial
@@ -100,3 +107,30 @@ if __name__ == '__main__':
     # Reset Run Flag
     run_flg = 0
 
+=======
+class Control:
+    def __init__(self, kp, setpt):
+        self.kp = kp
+        self.setpt = setpt
+
+    def run(self, pos):
+        error = self.setpt - pos
+        psi = self.kp*error
+        return psi
+
+    def set_setpoint(self, setpt_new):
+        self.setpt = setpt_new
+        return self.setpt
+
+    def set_Kp(self, kp_new):
+        self.kp = kp_new
+        print('kp is:', self.kp)
+        return self.kp
+    
+if __name__ == '__main__':
+    con = Control(4, 180)
+    con.set_Kp(5)
+    
+    
+    
+>>>>>>> b7217c42b2c4b4b4339de8e2694b242555552c8f
