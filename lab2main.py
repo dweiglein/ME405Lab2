@@ -1,11 +1,11 @@
 # initialize encoder and motor
-<<<<<<< HEAD
 import pyb
 import utime
 import csv
 import serial
 from encoder_reader import EncoderReader
 from motor_driver import MotorDriver
+from control import Control
 
 # motor pins
 enablePin = pyb.Pin.board.PA10
@@ -26,13 +26,9 @@ encoder1 = EncoderReader(encoder1Pin, encoder2Pin, 0, 0)
 # receive a setpoint
 # receive a Kp
 
-
-
-=======
 # receive a setpoint
 # receive a Kp
 
->>>>>>> b7217c42b2c4b4b4339de8e2694b242555552c8f
 # A constructor which sets the proportional gain, initial setpoint, and other necessary parameters.
 
 # A method run() which is called repeatedly to run the control algorithm.
@@ -106,9 +102,3 @@ if __name__ == '__main__':
     
     # Reset Run Flag
     run_flg = 0
-
-=======
-
-    
-    
->>>>>>> b7217c42b2c4b4b4339de8e2694b242555552c8f
