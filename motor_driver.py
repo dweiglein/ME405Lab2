@@ -22,7 +22,7 @@ class MotorDriver:
 
         self.ch1 = timer.channel(1, pyb.Timer.PWM, pin=motorpin1)
         self.ch2 = timer.channel(2, pyb.Timer.PWM, pin=motorpin2)
-        print("Creating a motor driver")
+        #print("Creating a motor driver")
 
     def set_duty_cycle(self, level):
         """! The motor will update with a new speed request from -100 to 100 percent. The new
@@ -36,7 +36,7 @@ class MotorDriver:
         else:
             self.ch1.pulse_width_percent(0)
             self.ch2.pulse_width_percent(level)
-        print(f"Setting duty cycle to {level}")
+        #print(f"Setting duty cycle to {level}")
 
 
 if __name__ == '__main__':

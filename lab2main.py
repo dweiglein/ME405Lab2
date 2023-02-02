@@ -1,8 +1,8 @@
 # initialize encoder and motor
 import pyb
 import utime
-import csv
-import serial
+# import csv
+# import serial
 from encoder_reader import EncoderReader
 from motor_driver import MotorDriver
 from control import Control
@@ -43,7 +43,6 @@ encoder1 = EncoderReader(encoder1Pin, encoder2Pin, 0, 0)
 
 # A method set_Kp() to set the control gain.
 
-<<<<<<< HEAD
 #Main Loop
 if __name__ == '__main__':
     # Intake Kp and Setpt value from serial
@@ -51,26 +50,28 @@ if __name__ == '__main__':
     param = []
     
     # Wait for serial input
-    while run_flg == 0
-        try:
-            param = s_port.readline.split(b',')
-            run_flg = 1
-        except:
-            run_flg = 0
-
-    setpt = param[0]
-    kp = param[1]
+    
+#     while run_flg == 0
+#         try:
+#             param = s_port.readline.split(b',')
+#             run_flg = 1
+#         except:
+#             run_flg = 0
+    setpt = 50000
+    kp = 1
     
     # Initialize Controller
     control1 = Control(kp, setpt)
     
     # Set Up Encoder Values
     count = 0
+    pos = 0
     count_old = 0
     delta = 0
-    time = []
-    position = []
+    time = []*5000
+    position = []*5000
     init_time = utime.ticks_ms()
+    encoder1.zero()
     
     # Control loop runs for 4 seconds
     while utime.ticks_ms() - init_time <= 4000:
@@ -79,21 +80,27 @@ if __name__ == '__main__':
         delta = count - count_old
         if abs(delta) > 30000:
             delta = delta % 65535
-        position = position + delta
+        pos = pos + delta
         count_old = count
         
         # Run controller with current position and setpt
-        psi = control1.run(position)
+        psi = control1.run(pos)
+#         if psi > 100:
+#             psi = 100
+#         elif psi <-100:
+#             psi = -100
         
         # Update Motor
-        motor1.set_duty_cycle(psi)
+        motor1.set_duty_cycle(-psi)
+        print(psi)
         
         # Append Time and Position Lists
         time_curr = utime.ticks_ms() - init_time
         time.append(time_curr)
-        position.append(position)
+        position.append(pos)
         utime.sleep_ms(10)
     
+    motor1.set_duty_cycle(0)
     # Write time and position data to csv file
     file = open("step.csv", "w")
     for k in time:

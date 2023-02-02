@@ -35,12 +35,12 @@ class EncoderReader:
         counter = self.timer.counter()
         if counter > self.old_count + 32000:
             self.position = self.position + counter
-            print('+')
+            #print('+')
         elif counter < self.old_count - 32000:
             self.position = self.position - counter
-            print('-')
+            #print('-')
         self.old_count = counter
-        print(self.position)
+        #print(self.position)
         return self.position
 
     def zero(self):
@@ -55,8 +55,8 @@ if __name__ == '__main__':
     enc = EncoderReader(p1, p2, 0, 0)
     while True:
         pos = enc.read()
-        print(pos)
+        #print(pos)
         if enc.timer.counter() > 40000:
-            print('reset')
+            #print('reset')
             enc.zero()
         pyb.delay(100)
