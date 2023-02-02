@@ -1,8 +1,8 @@
 # initialize encoder and motor
-# receive a setpoint
-# receive a Kp
-
 import pyb
+import utime
+import csv
+import serial
 from encoder_reader import EncoderReader
 from motor_driver import MotorDriver
 
@@ -22,6 +22,11 @@ encoderTimer = pyb.Timer(4, prescaler=0, period=0xFFFF)
 motor1 = MotorDriver(enablePin, input1Pin, input2Pin, motorTimer)
 encoder1 = EncoderReader(encoder1Pin, encoder2Pin, 0, 0)
 
+# receive a setpoint
+# receive a Kp
+
+
+
 # A constructor which sets the proportional gain, initial setpoint, and other necessary parameters.
 
 # A method run() which is called repeatedly to run the control algorithm.
@@ -35,3 +40,63 @@ encoder1 = EncoderReader(encoder1Pin, encoder2Pin, 0, 0)
 # A method set_setpoint() to set the setpoint.
 
 # A method set_Kp() to set the control gain.
+
+#Main Loop
+if __name__ == '__main__':
+    # Intake Kp and Setpt value from serial
+    run_flg = 0
+    param = []
+    
+    # Wait for serial input
+    while run_flg == 0
+        try:
+            param = s_port.readline.split(b',')
+            run_flg = 1
+        except:
+            run_flg = 0
+
+    setpt = param[0]
+    kp = param[1]
+    
+    # Initialize Controller
+    control1 = Control(kp, setpt)
+    
+    # Set Up Encoder Values
+    count = 0
+    count_old = 0
+    delta = 0
+    time = []
+    position = []
+    init_time = utime.ticks_ms()
+    
+    # Control loop runs for 4 seconds
+    while utime.ticks_ms() - init_time <= 4000:
+        # Read encoder to get current position
+        count = encoder1.read()
+        delta = count - count_old
+        if abs(delta) > 30000:
+            delta = delta % 65535
+        position = position + delta
+        count_old = count
+        
+        # Run controller with current position and setpt
+        psi = control1.run(position)
+        
+        # Update Motor
+        motor1.set_duty_cycle(psi)
+        
+        # Append Time and Position Lists
+        time_curr = utime.ticks_ms() - init_time
+        time.append(time_curr)
+        position.append(position)
+        utime.sleep_ms(10)
+    
+    # Write time and position data to csv file
+    file = open("step.csv", "w")
+    for k in time:
+        file.write("{} {}\n".format(time[k], position[k]))
+    file.close()
+    
+    # Reset Run Flag
+    run_flg = 0
+
