@@ -1,23 +1,39 @@
 # send a KP and setpoint from the PC side
 import serial
+import csv
 from matplotlib import pyplot as plt
 
-
-parameter = b'500,50\r\n'    # setpoint and KP
+'''
+parameter = b'5000,.1'    # setpoint and KP
 
 # runs step response tests by sending characters through the USB serial port to the MicroPython board
-with serial.Serial('COM8', 115200) as s_port:
+with serial.Serial('COM8', 115200, timeout=10) as s_port:
     s_port.write(parameter)  # Write bytes, not a string
+print("Parameters Sent")
+'''
 
-    # specify a long timeout
 
 # read the resulting data,
 # plot the step response with correctly labeled axes and title.
 
 # open the CSV file in read ('r') mode
 
+def plotter():
+    list = []
+    with(serial.Serial("COM8", 115200, timeout = 10) as ser):
+        expectedLength = ser.readline()
+        KPused = ser.readline()
+        for i in range(int(expectedLength)):
+            list.append(ser.readline().split(b","))
+
+    print(list)
+
+
+if __name__ == "__main__":
+    plotter()
+
+
 '''
-print(s_port.readline().split(b','))
 with serial.Serialopen('data.csv', 'r') as csv:
     # initialize x and y
     x_values = []

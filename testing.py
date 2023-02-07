@@ -1,6 +1,6 @@
 import pyb
 import utime
-import csv
+from pyb import UART
 
 motorTimer = pyb.Timer(3, freq=20000)
 motorpin1 = pyb.Pin(pyb.Pin.board.PB4, pyb.Pin.OUT_PP)
@@ -15,6 +15,7 @@ encoderpin2 = pyb.Pin(pyb.Pin.board.PB7, pyb.Pin.IN)
 encoderch1 = encoderTimer.channel(1, pyb.Timer.ENC_AB, pin=encoderpin1)
 encoderch2 = encoderTimer.channel(2, pyb.Timer.ENC_AB, pin=encoderpin2)
 
+
 def set_duty_cycle(level):
     if level <= 0:
         level = -1 * level
@@ -23,47 +24,51 @@ def set_duty_cycle(level):
     else:
         motorch1.pulse_width_percent(0)
         motorch2.pulse_width_percent(level)
-        
+
+
 def read():
     count = encoderTimer.counter()
     return count
 
-encoderTimer.counter(0)
-position = 0
+
+'''
+ser = pyb.USB_VCP()
+while(not ser.any()):
+    print("No data")
+    pyb.delay(100)
+    pass
+setPoint, KP = ser.readline().split(b',')
+print("Setpoint was read: " + setPoint)
+print("KP was read: " + KP)
+'''
 
 setPoint = 5000
 KP = .1
 
-startTime = utime.ticks_ms()
-print(startTime)
+encoderTimer.counter(0)
 elapsed = 0
-
+position = 0
 t = []
 y = []
 
-while elapsed < 500:
+startTime = utime.ticks_ms()
+while elapsed < 3000:
     currentTime = utime.ticks_ms()
     elapsed = currentTime - startTime
 
     pos = read()
     error = setPoint - pos
     set_duty_cycle(-(KP * error))
-    print(error)
-    
+
     t.append(elapsed)
     y.append(pos)
-    pyb.delay(5)
+    pyb.delay(10)
 
 set_duty_cycle(0)
 
-file = open("step.csv", "w")
-for k in y:
-    file.write("{} {}\n".format(t[k], y[k]))
-file.close()
-
-
-with open('step.csv', 'w', newline='') as csvfile:
-    data_write = csv.writer(csvfile, delimiter=',')
-    data_write.writerow([t, y])
-
-    
+u2 = pyb.UART(2, baudrate=115200)  # Set up the second USB-serial port
+u2.write(f"{len(y)}\r\n")
+u2.write(f"{KP}\r\n")
+for i in range(0, len(y)):  # Just some example output
+    u2.write(f"{t[i]}, {y[i]}\r\n")  # The "\r\n" is end-of-line stuff
+print("sent")
