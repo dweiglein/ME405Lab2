@@ -31,44 +31,50 @@ def read():
     return count
 
 
-'''
-ser = pyb.USB_VCP()
-while(not ser.any()):
-    print("No data")
-    pyb.delay(100)
-    pass
-setPoint, KP = ser.readline().split(b',')
-print("Setpoint was read: " + setPoint)
-print("KP was read: " + KP)
-'''
 
-setPoint = 5000
-KP = .1
+#ser = pyb.USB_VCP()
+ser = pyb.UART(2, baudrate=115200, timeout = 10)
 
-encoderTimer.counter(0)
-elapsed = 0
-position = 0
-t = []
-y = []
+def main():
+    ser = pyb.UART(2, baudrate=115200, timeout = 10)
+    while(not ser.any()):
+        print("No data")
+        pyb.delay(100)
+        pass
+    setPoint = ser.readline().strip()
+    KP = ser.readline()
 
-startTime = utime.ticks_ms()
-while elapsed < 3000:
-    currentTime = utime.ticks_ms()
-    elapsed = currentTime - startTime
+    setPoint = int(setPoint)
+    KP = float(KP)
+    print(setPoint)
+    print(KP)
 
-    pos = read()
-    error = setPoint - pos
-    set_duty_cycle(-(KP * error))
 
-    t.append(elapsed)
-    y.append(pos)
-    pyb.delay(10)
+    encoderTimer.counter(0)
+    elapsed = 0
+    position = 0
+    t = []
+    y = []
 
-set_duty_cycle(0)
+    startTime = utime.ticks_ms()
+    while elapsed < 3000:
+        currentTime = utime.ticks_ms()
+        elapsed = currentTime - startTime
+        pos = read()
+        t.append(elapsed)
+        y.append(pos)
+        
+        error = setPoint - pos
+        set_duty_cycle(-(KP * error))
+        pyb.delay(10)
 
-u2 = pyb.UART(2, baudrate=115200)  # Set up the second USB-serial port
-u2.write(f"{len(y)}\r\n")
-u2.write(f"{KP}\r\n")
-for i in range(0, len(y)):  # Just some example output
-    u2.write(f"{t[i]}, {y[i]}\r\n")  # The "\r\n" is end-of-line stuff
-print("sent")
+    set_duty_cycle(0)
+    u2 = pyb.UART(2, baudrate=115200, timeout = 10)
+    u2.write(f'{len(y)}\r\n')
+    u2.write(f'{KP}\r\n')
+    for i in range(0, len(y)):  # Just some example output
+        u2.write(f'{t[i]}, {y[i]}\r\n')  # The "\r\n" is end-of-line stuff
+    print("sent")
+    
+while True:
+    main()
