@@ -33,15 +33,16 @@ class EncoderReader:
         again.
         """
         counter = self.timer.counter()
-        if counter > self.old_count + 32000:
-            self.position = self.position + counter
-            #print('+')
-        elif counter < self.old_count - 32000:
-            self.position = self.position - counter
-            #print('-')
-        self.old_count = counter
-        #print(self.position)
-        return self.position
+#         if counter > self.old_count + 32000:
+#             self.position = self.position + counter
+#             #print('+')
+#         elif counter < self.old_count - 32000:
+#             self.position = self.position - counter
+#             #print('-')
+#         self.old_count = counter
+#         #print(self.position)
+#         return self.position
+        return counter
 
     def zero(self):
         """! The count can be manually reset to zero when starting a new measurement.

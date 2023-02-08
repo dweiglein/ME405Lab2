@@ -16,7 +16,7 @@ byte_KP = str_KP.encode()
 
 
 # runs step response tests by sending characters through the USB serial port to the MicroPython board
-with serial.Serial('COM8', 115200, timeout=10) as s_port:
+with serial.Serial('COM6', 115200, timeout=10) as s_port:
     s_port.write(byte_setpoint)
     s_port.write(b'\r\n')
     s_port.write(byte_KP)
@@ -32,9 +32,10 @@ print("Parameters Sent")
 def plotter():
     x_values = []
     y_values = []
-    with(serial.Serial("COM8", 115200, timeout = 10) as ser):
+    with(serial.Serial("COM6", 115200, timeout = 10) as ser):
         expectedLength = ser.readline().strip()
         KPused = ser.readline().strip()
+        print(expectedLength)
         for i in range(int(expectedLength)):
             newline = ser.readline().strip().split(b',')
             # try to convert each line into numbers

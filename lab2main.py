@@ -44,11 +44,11 @@ def main():
     #Receive a setpoint and kp
     ser = pyb.UART(2, baudrate=115200, timeout = 10)
     while(not ser.any()):
-        print("No data")
+        # print("No data")
         pyb.delay(100)
         pass
-    setPoint = ser.readline().strip()
-    KP = ser.readline()
+    setpt = ser.readline().strip()
+    kp = ser.readline()
 
     setpt = int(setpt)
     kp = float(kp)
@@ -68,6 +68,7 @@ def main():
     y = []
     
     # Control loop runs for 3 seconds
+    startTime = utime.ticks_ms()
     while elapsed < 3000:
         currentTime = utime.ticks_ms()
         elapsed = currentTime - startTime
@@ -80,15 +81,18 @@ def main():
         pyb.delay(10)
         
         # Append Time and Position Lists
-        time_curr = utime.ticks_ms() - init_time
-        time.append(time_curr)
-        position.append(pos)
-        utime.sleep_ms(10)
+#         time_curr = utime.ticks_ms() - init_time
+#         time.append(time_curr)
+#         position.append(pos)
+#         utime.sleep_ms(10)
     
-    set_duty_cycle(0)
+    motor1.set_duty_cycle(0)
+    print("STOP")
     u2 = pyb.UART(2, baudrate=115200, timeout = 10)
     u2.write(f'{len(y)}\r\n')
-    u2.write(f'{KP}\r\n')
+    print(len(y))
+    u2.write(f'{kp}\r\n')
+    print(kp)
     for i in range(0, len(y)):  # Just some example output
         u2.write(f'{t[i]}, {y[i]}\r\n')  # The "\r\n" is end-of-line stuff
     print("sent")    
