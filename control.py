@@ -5,7 +5,7 @@ class Control:
 
     def run(self, pos):
         error = self.setpt - pos
-        psi = self.kp*error
+        psi = -self.kp*error
         return psi
 
     def set_setpoint(self, setpt_new):

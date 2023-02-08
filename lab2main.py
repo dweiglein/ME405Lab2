@@ -1,16 +1,16 @@
 # initialize encoder and motor
 import pyb
 import utime
-# import csv
-# import serial
 from encoder_reader import EncoderReader
 from motor_driver import MotorDriver
 from control import Control
+from pyb import UART
 
 # motor pins
 enablePin = pyb.Pin.board.PA10
 input1Pin = pyb.Pin.board.PB4
 input2Pin = pyb.Pin.board.PB5
+
 # encoder pins
 encoder1Pin = pyb.Pin.board.PB6
 encoder2Pin = pyb.Pin.board.PB7
@@ -23,11 +23,8 @@ encoderTimer = pyb.Timer(4, prescaler=0, period=0xFFFF)
 motor1 = MotorDriver(enablePin, input1Pin, input2Pin, motorTimer)
 encoder1 = EncoderReader(encoder1Pin, encoder2Pin, 0, 0)
 
-# receive a setpoint
-# receive a Kp
-
-# receive a setpoint
-# receive a Kp
+# Initialize ser
+ser = pyb.UART(2, baudrate=115200, timeout = 10)
 
 # A constructor which sets the proportional gain, initial setpoint, and other necessary parameters.
 
@@ -43,56 +40,44 @@ encoder1 = EncoderReader(encoder1Pin, encoder2Pin, 0, 0)
 
 # A method set_Kp() to set the control gain.
 
-#Main Loop
-if __name__ == '__main__':
-    # Intake Kp and Setpt value from serial
-    run_flg = 0
-    param = []
-    
-    # Wait for serial input
-    
-#     while run_flg == 0
-#         try:
-#             param = s_port.readline.split(b',')
-#             run_flg = 1
-#         except:
-#             run_flg = 0
-    setpt = 50000
-    kp = 1
+def main():
+    #Receive a setpoint and kp
+    ser = pyb.UART(2, baudrate=115200, timeout = 10)
+    while(not ser.any()):
+        print("No data")
+        pyb.delay(100)
+        pass
+    setPoint = ser.readline().strip()
+    KP = ser.readline()
+
+    setpt = int(setpt)
+    kp = float(kp)
+#     print(setpt)
+#     print(kp)
     
     # Initialize Controller
     control1 = Control(kp, setpt)
+    control1.set_setpoint(setpt)
+    control1.set_Kp(kp)
     
-    # Set Up Encoder Values
-    count = 0
-    pos = 0
-    count_old = 0
-    delta = 0
-    time = []*5000
-    position = []*5000
-    init_time = utime.ticks_ms()
-    encoder1.zero()
+    # Set up Encoder Values
+    encoderTimer.counter(0)
+    elapsed = 0
+    position = 0
+    t = []
+    y = []
     
-    # Control loop runs for 4 seconds
-    while utime.ticks_ms() - init_time <= 4000:
-        # Read encoder to get current position
-        count = encoder1.read()
-        delta = count - count_old
-        if abs(delta) > 30000:
-            delta = delta % 65535
-        pos = pos + delta
-        count_old = count
+    # Control loop runs for 3 seconds
+    while elapsed < 3000:
+        currentTime = utime.ticks_ms()
+        elapsed = currentTime - startTime
+        pos = encoder1.read()
+        t.append(elapsed)
+        y.append(pos)
         
-        # Run controller with current position and setpt
         psi = control1.run(pos)
-#         if psi > 100:
-#             psi = 100
-#         elif psi <-100:
-#             psi = -100
-        
-        # Update Motor
-        motor1.set_duty_cycle(-psi)
-        print(psi)
+        motor1.set_duty_cycle(psi)
+        pyb.delay(10)
         
         # Append Time and Position Lists
         time_curr = utime.ticks_ms() - init_time
@@ -100,12 +85,16 @@ if __name__ == '__main__':
         position.append(pos)
         utime.sleep_ms(10)
     
-    motor1.set_duty_cycle(0)
-    # Write time and position data to csv file
-    file = open("step.csv", "w")
-    for k in time:
-        file.write("{} {}\n".format(time[k], position[k]))
-    file.close()
+    set_duty_cycle(0)
+    u2 = pyb.UART(2, baudrate=115200, timeout = 10)
+    u2.write(f'{len(y)}\r\n')
+    u2.write(f'{KP}\r\n')
+    for i in range(0, len(y)):  # Just some example output
+        u2.write(f'{t[i]}, {y[i]}\r\n')  # The "\r\n" is end-of-line stuff
+    print("sent")    
+
+#Main Loop
+while __name__ == '__main__':
+    main()
     
-    # Reset Run Flag
-    run_flg = 0
+
