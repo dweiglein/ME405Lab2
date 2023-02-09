@@ -1,3 +1,35 @@
+"""!
+@file lab2main.py
+
+This file is Lab 2 for ME 405. The goal of this exercise was to control a 12V
+DC motor system as a servo system with a proportional controller. The motor is
+connected to an external power supply and a STM32 PWM output. The built-in encoder
+provides position feedback and uses STM-32 timers. At the beginning of the
+program sequence, controller parameters are sent through UART serial communication
+to the STM32, initializing the control algorithm.
+
+The proportional controller is the most simple closed-loop controller, using
+just one variable (Kp, the controller constant), to direcetly impact the amount
+of "effort" that the motor applies. The "effort" applied to the motor is a duty
+cycle percentage. To find the required duty cycle, the algorithm calculates the
+difference between the setpoint (goal) and the actual position and multiplies it
+by the proportional controller constant. A higher error implies a higher corrective
+effort, while a lower error applied a lower corrective effort. Eventually, the
+error becomes negligible and no further correction is needed.
+
+This program uses 3 classes: MotorDriver, EncoderReader, and Control. After defining
+the pins and starting the timer channels, the control loop waits for motor parameters.
+Once the controller parameters (Kp and setpt) are received from the PC. The encoder
+reads the position, which is used by the controller to calculate the required duty
+cycle, which is applied to the motor. This loop runs for 3 seconds.
+
+@author Tom Taylor
+@author Jonathan Fraser
+@author Dylan Weiglein
+
+@date   2022-02-08
+"""
+
 # initialize encoder and motor
 import pyb
 import utime

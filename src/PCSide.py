@@ -1,3 +1,19 @@
+"""!
+@file PCSide.py
+
+This file is required to execute the ME 405 main program, "lab2main.py".
+The purpose of this file is to request user input for the controller parameters,
+Kp (proportional controller constant), and setpt (Setpoint, positional goal of servo).
+Once user input is received, the data is communicated through serial UART communication
+to the STM32, subsequentlly activating the control loop.
+
+@author Tom Taylor
+@author Jonathan Fraser
+@author Dylan Weiglein
+
+@date   2022-02-08
+"""
+
 # send a KP and setpoint from the PC side
 import serial
 import csv
